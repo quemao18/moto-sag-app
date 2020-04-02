@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "635626247891",
+    "firebase_url": "https://moto-sag.firebaseio.com",
+    "project_id": "moto-sag",
+    "storage_bucket": "moto-sag.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:635626247891:android:39e9103958bba98713a626",
+        "android_client_info": {
+          "package_name": "com.asertech.motosag"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "635626247891-ijk1v5rja7h9ll115seg4ud6l6gmajej.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDB4j5i4EYj4_EKTcVb2DGPJDADRBSzL70"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "635626247891-ijk1v5rja7h9ll115seg4ud6l6gmajej.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
