@@ -44,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _stackToView = 0;
     });
   }
+
   @override
   Widget build(BuildContext context) {
   double statusBarHeight = MediaQuery.of(context).padding.top;
@@ -65,7 +66,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   onPageFinished: _handleLoad,
                   onWebViewCreated: (WebViewController webViewController) {
                     _controller.complete(webViewController);
-                    // webViewController.reload();
                   },
                   navigationDelegate: (NavigationRequest request)
                   {
