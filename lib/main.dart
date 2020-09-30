@@ -6,12 +6,14 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   runApp(MyApp());
-} 
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -31,13 +33,15 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatefulWidget {
   // MyHomePage({Key key, this.url}) : super(key: key);
 
- final url;
+  final url;
   MyHomePage(this.url);
   @override
   _MyHomePageState createState() => _MyHomePageState(this.url);
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  String _homeScreenText = "Waiting for token...";
 
   Completer<WebViewController> _controller = Completer<WebViewController>();
   // final Set<String> _favorites = Set<String>();
@@ -54,53 +58,49 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-  double statusBarHeight = MediaQuery.of(context).padding.top;
-  return Scaffold(
-      // appBar: AppBar(),
+    double statusBarHeight = MediaQuery.of(context).padding.top;
+    return Scaffold(
+        // appBar: AppBar(),
       body: IndexedStack(
-        index: _stackToView,
-        children: [
-          Container(
+      index: _stackToView,
+      children: [
+        Container(
           margin: EdgeInsets.only(top: statusBarHeight),
-          child:
-          Column(
-            children: < Widget > [
+          child: Column(
+            children: <Widget>[
               Expanded(
-                child: WebView(
-                  key: _key,
-                  javascriptMode: JavascriptMode.unrestricted,
-                  initialUrl: _url,
-                  onPageFinished: _handleLoad,
-                  onWebViewCreated: (WebViewController webViewController) {
-                    _controller.complete(webViewController);
-                  },
-                  navigationDelegate: (NavigationRequest request)
-                  {
-                    if (request.url.startsWith('https://github.com/quemao18'))
-                    {
-                      print('blocking navigation to $request}');
-                      _launchURL('https://github.com/quemao18');
-                      return NavigationDecision.prevent;
-                    }
+                  child: WebView(
+                key: _key,
+                javascriptMode: JavascriptMode.unrestricted,
+                initialUrl: _url,
+                onPageFinished: _handleLoad,
+                onWebViewCreated: (WebViewController webViewController) {
+                  _controller.complete(webViewController);
+                },
+                navigationDelegate: (NavigationRequest request) {
+                  if (request.url.startsWith('https://github.com/quemao18')) {
+                    print('blocking navigation to $request}');
+                    _launchURL('https://github.com/quemao18');
+                    return NavigationDecision.prevent;
+                  }
 
-                    print('allowing navigation to $request');
-                    return NavigationDecision.navigate;
-                  },
-                )
-              ),
+                  print('allowing navigation to $request');
+                  return NavigationDecision.navigate;
+                },
+              )),
             ],
           ),
-          ),
-          Container(
-            color: Colors.white,
-            child: Center(
-              child: CircularProgressIndicator(backgroundColor: Colors.indigo,),
+        ),
+        Container(
+          color: Colors.white,
+          child: Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.indigo,
             ),
           ),
-        ],
-      )
-    );
-    
+        ),
+      ],
+    ));
   }
 
   _launchURL(String url) async {
@@ -111,26 +111,36 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // _bookmarkButton() {
-  //   return FutureBuilder<WebViewController>(
-  //     future: _controller.future,
-  //     builder:
-  //         (BuildContext context, AsyncSnapshot<WebViewController> controller) {
-  //       if (controller.hasData) {
-  //         return FloatingActionButton(
-  //           onPressed: () async {
-  //             var url = await controller.data.currentUrl();
-  //             _favorites.add(url);
-  //             Scaffold.of(context).showSnackBar(
-  //               SnackBar(content: Text('Saved $url for later reading.')),
-  //             );
-  //           },
-  //           child: Icon(Icons.favorite),
-  //         );
-  //       }
-  //       return Container();
-  //     },
-  //   );
-  // }
-  
+  @override
+  void initState() {
+    super.initState();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        // _showItemDialog(message);
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+        // _navigateToItemDetail(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+        // _navigateToItemDetail(message);
+      },
+    );
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(
+            sound: true, badge: true, alert: true, provisional: true));
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+    _firebaseMessaging.getToken().then((String token) {
+      assert(token != null);
+      setState(() {
+        _homeScreenText = "Push Messaging token: $token";
+      });
+      print(_homeScreenText);
+    });
+  }
 }
