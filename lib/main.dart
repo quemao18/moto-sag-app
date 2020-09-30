@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             children: <Widget>[
               Expanded(
-                  child: WebView(
+                child: WebView(
                 key: _key,
                 javascriptMode: JavascriptMode.unrestricted,
                 initialUrl: _url,
